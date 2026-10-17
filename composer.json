@@ -1,0 +1,67 @@
+{
+    "name": "your-vendor/php-ai-guard",
+    "description": "Call Claude, Gemini or any OpenAI-compatible LLM API from plain PHP with hard budgets, rate limits, usage logging, caching, fallbacks and privacy redaction.",
+    "type": "library",
+    "license": "MIT",
+    "keywords": ["ai", "llm", "openai", "anthropic", "claude", "gemini", "groq", "openrouter", "ollama", "budget", "rate-limit", "cost", "privacy", "redaction", "shared-hosting"],
+    "homepage": "https://github.com/your-vendor/php-ai-guard",
+    "support": {
+        "issues": "https://github.com/your-vendor/php-ai-guard/issues",
+        "source": "https://github.com/your-vendor/php-ai-guard"
+    },
+    "authors": [
+        {
+            "name": "Your Name",
+            "homepage": "https://github.com/your-vendor"
+        }
+    ],
+    "require": {
+        "php": "^8.0",
+        "ext-curl": "*",
+        "ext-json": "*"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.0",
+        "phpstan/phpstan": "^2.0",
+        "phpunit/phpunit": "^9.6",
+        "psr/http-client": "^1.0",
+        "psr/http-factory": "^1.0",
+        "psr/log": "^1.1 || ^2.0 || ^3.0",
+        "psr/simple-cache": "^1.0 || ^2.0 || ^3.0"
+    },
+    "suggest": {
+        "ext-pdo": "Required for the MySQL/MariaDB/SQLite storage driver",
+        "ext-pdo_sqlite": "Required for SQLite storage",
+        "ext-pdo_mysql": "Required for MySQL/MariaDB storage",
+        "ext-mbstring": "Improves token estimation for non-Latin text",
+        "psr/log": "Pass any PSR-3 logger to receive operational logs",
+        "psr/simple-cache": "Use any PSR-16 cache for response caching",
+        "psr/http-client": "Use any PSR-18 HTTP client instead of the built-in cURL client"
+    },
+    "autoload": {
+        "psr-4": {
+            "PhpAiGuard\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "PhpAiGuard\\Tests\\": "tests/"
+        }
+    },
+    "bin": ["bin/ai-guard"],
+    "scripts": {
+        "test": "phpunit",
+        "analyse": "phpstan analyse --memory-limit=1G",
+        "cs": "php-cs-fixer fix --dry-run --diff",
+        "cs-fix": "php-cs-fixer fix",
+        "check": ["@cs", "@analyse", "@test"]
+    },
+    "config": {
+        "sort-packages": true,
+        "platform": {
+            "php": "8.0.30"
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
