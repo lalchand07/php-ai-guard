@@ -130,12 +130,12 @@ final class PdoStorage implements StorageInterface
         $unlimited = $this->pdo->prepare("UPDATE {$this->counters} SET amount = amount + ?, updated_at = ? WHERE counter_key = ?");
         $now = time();
         foreach ($operations as $op) {
-            $insert->execute([$op->key, $op->expiresAt, $now]);
+            self::run($insert, [$op->key, $op->expiresAt, $now]);
             if ($op->limit === null) {
-                $unlimited->execute([$op->amount, $now, $op->key]);
+                self::run($unlimited, [$op->amount, $now, $op->key]);
                 continue;
             }
-            $limited->execute([$op->amount, $now, $op->key, $op->amount, $op->limit]);
+            self::run($limited, [$op->amount, $now, $op->key, $op->amount, $op->limit]);
             if ($limited->rowCount() === 0) {
                 $this->rollback();
 
@@ -161,7 +161,7 @@ final class PdoStorage implements StorageInterface
             $this->begin();
             $statement = $this->pdo->prepare($sql);
             foreach ($deltas as $key => $delta) {
-                $statement->execute([$delta, time(), (string) $key]);
+                self::run($statement, [$delta, time(), (string) $key]);
             }
             $this->commit();
         } catch (\PDOException $e) {
@@ -196,7 +196,7 @@ final class PdoStorage implements StorageInterface
             implode(', ', array_fill(0, count($columns), '?'))
         );
         try {
-            $this->pdo->prepare($sql)->execute(array_values($row));
+            self::run($this->pdo->prepare($sql), array_values($row));
         } catch (\PDOException $e) {
             throw new StorageException('Could not write the usage log: ' . $e->getMessage(), 0, $e);
         }
@@ -223,7 +223,7 @@ final class PdoStorage implements StorageInterface
               GROUP BY grp";
         try {
             $statement = $this->pdo->prepare($sql);
-            $statement->execute([$from, $to]);
+            self::run($statement, [$from, $to]);
             $rows = $statement->fetchAll(\PDO::FETCH_ASSOC);
         } catch (\PDOException $e) {
             throw new StorageException('Could not read the usage log: ' . $e->getMessage(), 0, $e);
@@ -251,12 +251,33 @@ final class PdoStorage implements StorageInterface
     {
         try {
             $statement = $this->pdo->prepare("DELETE FROM {$this->counters} WHERE expires_at < ?");
-            $statement->execute([$now]);
+            self::run($statement, [$now]);
 
             return $statement->rowCount();
         } catch (\PDOException $e) {
             throw new StorageException('Could not prune counters: ' . $e->getMessage(), 0, $e);
         }
+    }
+
+    /**
+     * Executes with typed bindings. Plain execute([...]) binds everything as
+     * strings, and SQLite then compares "amount + ? <= ?" as text, which
+     * would silently disable the limit check.
+     *
+     * @param list<int|string|bool|null> $params
+     */
+    private static function run(\PDOStatement $statement, array $params): void
+    {
+        foreach ($params as $i => $value) {
+            $type = match (true) {
+                is_int($value) => \PDO::PARAM_INT,
+                is_bool($value) => \PDO::PARAM_BOOL,
+                $value === null => \PDO::PARAM_NULL,
+                default => \PDO::PARAM_STR,
+            };
+            $statement->bindValue($i + 1, $value, $type);
+        }
+        $statement->execute();
     }
 
     private function begin(): void
