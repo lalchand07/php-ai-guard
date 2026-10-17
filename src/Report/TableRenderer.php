@@ -85,7 +85,14 @@ final class TableRenderer
 
     public static function money(float $usd): string
     {
-        return '$' . number_format($usd, $usd > 0 && $usd < 1 ? 4 : 2);
+        $decimals = 2;
+        if ($usd > 0 && $usd < 0.01) {
+            $decimals = 6;
+        } elseif ($usd > 0 && $usd < 1) {
+            $decimals = 4;
+        }
+
+        return '$' . number_format($usd, $decimals);
     }
 
     /**
