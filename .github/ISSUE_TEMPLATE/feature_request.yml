@@ -1,0 +1,22 @@
+name: Feature request
+description: Suggest an improvement or a new provider
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would this solve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: For a new provider, please link its official API documentation.
+  - type: checkboxes
+    id: constraints
+    attributes:
+      label: Constraints
+      options:
+        - label: Works on PHP 8.0 without new required dependencies
+        - label: I am willing to open a pull request

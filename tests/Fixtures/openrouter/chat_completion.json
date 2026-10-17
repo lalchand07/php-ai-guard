@@ -1,0 +1,25 @@
+{
+  "id": "gen-1760670000-abc",
+  "object": "chat.completion",
+  "created": 1760670000,
+  "model": "meta-llama/llama-3.3-70b-instruct",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "native_finish_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "Bonjour !"
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 120,
+    "completion_tokens": 4,
+    "total_tokens": 124,
+    "prompt_tokens_details": {
+      "cached_tokens": 100,
+      "cache_write_tokens": 0
+    }
+  }
+}

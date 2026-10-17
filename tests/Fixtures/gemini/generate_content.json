@@ -1,0 +1,29 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "Thinking about cookies...",
+            "thought": true
+          },
+          {
+            "text": "1. Chocolate chip cookies\n2. Oatmeal raisin cookies"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 10,
+    "cachedContentTokenCount": 4,
+    "candidatesTokenCount": 15,
+    "thoughtsTokenCount": 5,
+    "totalTokenCount": 30
+  },
+  "modelVersion": "gemini-3.8-flash",
+  "responseId": "mAitaN2nG9GOz7IP3JfTiAQ"
+}

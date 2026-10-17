@@ -1,0 +1,10 @@
+parameters:
+    level: 8
+    phpVersion:
+        min: 80000
+        max: 80499
+    paths:
+        - src
+        - bin/ai-guard
+        - dashboard
+    treatPhpDocTypesAsCertain: false
