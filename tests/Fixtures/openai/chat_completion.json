@@ -1,0 +1,33 @@
+{
+  "id": "chatcmpl-AyPNinnUqUDYo9SAdA52NobMflmj2",
+  "object": "chat.completion",
+  "created": 1738960610,
+  "model": "gpt-6-astra",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "Mind of circuits hum,  \nLearning patterns in silence—  \nFuture's quiet spark.",
+        "tool_calls": null,
+        "function_call": null
+      },
+      "finish_reason": "stop",
+      "logprobs": null
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 13,
+    "completion_tokens": 18,
+    "total_tokens": 31,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": "fp_50cad350e4"
+}
