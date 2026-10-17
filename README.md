@@ -461,7 +461,7 @@ Contributions welcome: see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Built by
 
-_Your name / company here._ ([website](https://example.com) · [GitHub](https://github.com/your-vendor))
+__Lal Chand / Codic Systems._ ([website](https://codicsystems.com) · [GitHub](https://github.com/lalchand07))
 
 ## License
 
