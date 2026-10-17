@@ -1,0 +1,51 @@
+name: Bug report
+description: Something does not work as documented
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! **Never paste API keys, real prompts or personal data.**
+        Security problems (budget bypass, data leaks): please follow SECURITY.md instead.
+  - type: input
+    id: version
+    attributes:
+      label: php-ai-guard version
+      placeholder: 0.1.0
+    validations:
+      required: true
+  - type: input
+    id: php
+    attributes:
+      label: PHP version and hosting
+      placeholder: PHP 8.1 on cPanel shared hosting
+    validations:
+      required: true
+  - type: dropdown
+    id: provider
+    attributes:
+      label: Provider(s) involved
+      multiple: true
+      options: [Anthropic, Gemini, OpenAI, Groq, OpenRouter, NVIDIA NIM, Ollama, Other OpenAI-compatible, Not provider-related]
+  - type: dropdown
+    id: storage
+    attributes:
+      label: Storage driver
+      options: [SQLite, MySQL/MariaDB, File, Memory, Custom]
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Minimal reproduction
+      description: Config (with keys removed) and code. A failing test using MockHttpClient is ideal.
+      render: php
+  - type: textarea
+    id: output
+    attributes:
+      label: Exception message / output
+      render: text
