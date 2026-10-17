@@ -37,6 +37,21 @@ final class ConcurrencyTest extends TestCase
         $this->assertCounters($storage);
     }
 
+    /**
+     * @requires extension pdo_mysql
+     * @group mysql
+     */
+    public function testMysqlCountersAreSafeUnderConcurrentRequests(): void
+    {
+        $storage = \PhpAiGuard\Tests\Storage\MysqlStorageTest::connect();
+        $storage->install();
+        $storage->pdo()->exec('DELETE FROM ai_guard_counters');
+        $granted = $this->runWorkers('mysql', '');
+
+        self::assertSame(self::LIMIT, $granted);
+        $this->assertCounters($storage);
+    }
+
     public function testFileCountersAreSafeUnderConcurrentRequests(): void
     {
         $path = TempDir::create() . '/store';

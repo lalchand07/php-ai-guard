@@ -102,17 +102,46 @@ final class PdoStorage implements StorageInterface
             return null;
         }
 
+        try {
+            $this->createCounters($operations);
+        } catch (\PDOException $e) {
+            throw new StorageException('Could not create budget counters: ' . $e->getMessage(), 0, $e);
+        }
+
         for ($try = 1; ; $try++) {
             try {
                 return $this->reserveOnce($operations);
             } catch (\PDOException $e) {
                 $this->rollback();
-                // 40001 = serialization failure / deadlock (MySQL); retry a few times with a short pause.
-                if ($try < 3 && ($e->getCode() === '40001' || str_contains($e->getMessage(), 'Deadlock'))) {
-                    usleep(random_int(5_000, 50_000));
+                // 40001 = deadlock / serialization failure, HY000 + "locked" = SQLite busy: retry with jitter.
+                $transient = (string) $e->getCode() === '40001' || str_contains($e->getMessage(), 'Deadlock') || str_contains($e->getMessage(), 'database is locked');
+                if ($try < 6 && $transient) {
+                    usleep(random_int(1_000, 20_000) * $try);
                     continue;
                 }
                 throw new StorageException('Could not update budget counters: ' . $e->getMessage(), 0, $e);
+            }
+        }
+    }
+
+    /**
+     * Makes sure every counter row exists, outside the reservation transaction:
+     * inserting inside it would take gap locks on MySQL and deadlock under load.
+     *
+     * @param list<CounterOperation> $operations
+     */
+    private function createCounters(array $operations): void
+    {
+        $insert = $this->pdo->prepare($this->driver === 'sqlite'
+            ? "INSERT OR IGNORE INTO {$this->counters} (counter_key, amount, expires_at, updated_at) VALUES (?, 0, ?, ?)"
+            : "INSERT IGNORE INTO {$this->counters} (counter_key, amount, expires_at, updated_at) VALUES (?, 0, ?, ?)");
+        $exists = $this->pdo->prepare("SELECT 1 FROM {$this->counters} WHERE counter_key = ?");
+        foreach ($operations as $op) {
+            self::run($exists, [$op->key]);
+            $found = $exists->fetchColumn() !== false;
+            $exists->closeCursor();
+            if (!$found) {
+                self::run($insert, [$op->key, $op->expiresAt, time()]);
             }
         }
     }
@@ -123,14 +152,10 @@ final class PdoStorage implements StorageInterface
     private function reserveOnce(array $operations): ?string
     {
         $this->begin();
-        $insert = $this->pdo->prepare($this->driver === 'sqlite'
-            ? "INSERT OR IGNORE INTO {$this->counters} (counter_key, amount, expires_at, updated_at) VALUES (?, 0, ?, ?)"
-            : "INSERT IGNORE INTO {$this->counters} (counter_key, amount, expires_at, updated_at) VALUES (?, 0, ?, ?)");
         $limited = $this->pdo->prepare("UPDATE {$this->counters} SET amount = amount + ?, updated_at = ? WHERE counter_key = ? AND amount + ? <= ?");
         $unlimited = $this->pdo->prepare("UPDATE {$this->counters} SET amount = amount + ?, updated_at = ? WHERE counter_key = ?");
         $now = time();
         foreach ($operations as $op) {
-            self::run($insert, [$op->key, $op->expiresAt, $now]);
             if ($op->limit === null) {
                 self::run($unlimited, [$op->amount, $now, $op->key]);
                 continue;
